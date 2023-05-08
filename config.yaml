@@ -1,0 +1,9 @@
+# type: args
+
+path: C:\Users\perovj01\Documents\Test\datasets
+
+emails:
+  email_subject_1 : "FW: HEI Non PGI" 
+  email_subject_2 : "FW: HUSA_OrderAllocation_NONPGI_Daily"
+  email_subject_3 : "FW: Art Scheduler"
+  email_subject_4 : "FW: Non PGI Report"

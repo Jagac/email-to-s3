@@ -3,8 +3,10 @@ import pandas as pd
 import win32com.client
 from datetime import datetime
 import os
+import yaml
 
-
+with open("config.yaml", "r") as file:
+    global_variables = yaml.safe_load(file)
 
 def save_attachments(subject_prefix: str):
     """
@@ -16,7 +18,7 @@ def save_attachments(subject_prefix: str):
     Returns: folder with downloaded attachments
     """
     # navigate outlook folders
-    path = r"C:\Users\perovj01\Documents\Test\datasets"
+    path = global_variables['path']
     outlook = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
     root_folder = outlook.Folders.Item(1)
     Reports_Folder = root_folder.Folders['Reports']
@@ -26,9 +28,9 @@ def save_attachments(subject_prefix: str):
     messages.Sort("[ReceivedTime]", True)
     for message in messages:
         if message.Subject.startswith(subject_prefix):
-            print(f"Downloading {message.Subject}")
             for attachment in message.Attachments:
                 attachment.SaveAsFile(os.path.join(path, str(attachment.FileName)))
+                
             return
 
 def assign_report_date_columns(subject_prefix : str, df : pd.DataFrame):
@@ -51,7 +53,8 @@ def assign_report_date_columns(subject_prefix : str, df : pd.DataFrame):
         if message.Subject.startswith(subject_prefix):
             df['Report Date']= datetime.today().strftime('%m-%d-%Y')
             df['Datestamp of Source File'] = message.Senton
-            df['Datestamp of Source File']=df['Datestamp of Source File'].dt.tz_convert(None) # https://stackoverflow.com/questions/51827582/message-exception-ignored-when-dealing-pandas-datetime-type
+            df['Datestamp of Source File']=df['Datestamp of Source File'].dt.tz_convert(None)
+            
             return
 
 
@@ -88,18 +91,18 @@ def optimize_df(df: pd.DataFrame):
     return df
 
 
-def read_excel_optimized(path: str, dataset = 0):
-    if dataset == 1:
+def read_excel_optimized(path: str, skip_rows = 0):
+    if skip_rows == 1:
         df = pd.read_excel(path, skiprows= 1)
-    if dataset == 2:
+    if skip_rows == 4:
         df = pd.read_excel(path, skiprows= 4)
     else:
         df = pd.read_excel(path)
     
     return optimize_df(df)
 
+
 def read_csv_optimized(path: str):
     df = pd.read_csv(path)
     
     return optimize_df(df)
-
